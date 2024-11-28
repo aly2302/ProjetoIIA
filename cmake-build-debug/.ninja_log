@@ -1,0 +1,20 @@
+# ninja log v5
+12	136	7545121990220552	CMakeFiles/ProjetoIIA.dir/evolutivo.c.obj	f7ae7d9d034fc6c
+11	122	7545118715345418	CMakeFiles/ProjetoIIA.dir/trepaColinas.c.obj	e4ab7bbf56fd3da7
+1	117	7545122821938376	CMakeFiles/ProjetoIIA.dir/main.c.obj	39055f77f0bb7d03
+117	195	7545122822687301	ProjetoIIA.exe	2517a26efa63b24d
+16	123	7545117547353145	CMakeFiles/ProjetoIIA.dir/utils.c.obj	a0e0bdaae8da23a
+2	127	7545124781147813	CMakeFiles/ProjetoIIA.dir/hibrido.c.obj	12fe2454959c30b4
+127	213	7545124781986150	ProjetoIIA.exe	54b3ed71cfae98ef
+1	119	7545125018377169	CMakeFiles/ProjetoIIA.dir/main.c.obj	39055f77f0bb7d03
+120	199	7545125019150045	ProjetoIIA.exe	54b3ed71cfae98ef
+2	122	7545127065223470	CMakeFiles/ProjetoIIA.dir/hibrido.c.obj	12fe2454959c30b4
+123	214	7545127066107208	ProjetoIIA.exe	54b3ed71cfae98ef
+2	125	7545127838560763	CMakeFiles/ProjetoIIA.dir/hibrido.c.obj	12fe2454959c30b4
+125	205	7545127839325104	ProjetoIIA.exe	54b3ed71cfae98ef
+2	128	7545128526938889	CMakeFiles/ProjetoIIA.dir/hibrido.c.obj	12fe2454959c30b4
+128	211	7545128527737701	ProjetoIIA.exe	54b3ed71cfae98ef
+2	117	7545129128740858	CMakeFiles/ProjetoIIA.dir/hibrido.c.obj	12fe2454959c30b4
+117	197	7545129129504229	ProjetoIIA.exe	54b3ed71cfae98ef
+2	120	7545129396252122	CMakeFiles/ProjetoIIA.dir/hibrido.c.obj	12fe2454959c30b4
+120	195	7545129396976889	ProjetoIIA.exe	54b3ed71cfae98ef
