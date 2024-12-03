@@ -1,162 +1,135 @@
-// evolutivo.c
-
+/* evolutivo.c */
 #include "evolutivo.h"
-#include "utils.h"
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
-#include <math.h>
-#include <string.h>
 
-void gerar_solucao_aleatoria_evolutivo(Individuo *ind, double *moedas, double alvo) {
-    double soma = 0.0;
-    for (int i = 0; i < ind->tamanho; i++) {
-        ind->solucao[i] = rand() % ((int)(alvo / moedas[i]) + 1);
-        soma += ind->solucao[i] * moedas[i];
-    }
-    // Garantir que a soma não é zero
-    if (soma == 0) {
-        int indice = rand() % ind->tamanho;
-        ind->solucao[indice] = 1;
-    }
-}
 
-double calcular_soma_evolutivo(Individuo *ind, double *moedas) {
-    double soma = 0.0;
-    for (int i = 0; i < ind->tamanho; i++) {
-        soma += ind->solucao[i] * moedas[i];
-    }
-    return soma;
-}
-
-void reparar_solucao_evolutivo(Individuo *ind, double *moedas, double alvo) {
-    double soma = calcular_soma_evolutivo(ind, moedas);
-    for (int i = ind->tamanho - 1; i >= 0 && soma > alvo; i--) {
-        while (ind->solucao[i] > 0 && soma - moedas[i] >= alvo) {
-            ind->solucao[i]--;
-            soma -= moedas[i];
+void inicializar_populacao(Individuo *populacao, int tamanho, double *moedas, int n, double alvo) {
+    for (int i = 0; i < tamanho; i++) {
+        populacao[i].solucao.tamanho = n;
+        populacao[i].solucao.solucao = malloc(n * sizeof(int));
+        if (populacao[i].solucao.solucao == NULL) {
+            printf("Erro ao alocar memoria para a solucao.\n");
+            exit(EXIT_FAILURE);
         }
+        gerar_solucao_aleatoria_trepa(&populacao[i].solucao, moedas, alvo);
+        reparar_solucao_trepa(&populacao[i].solucao, moedas, alvo);
+        populacao[i].fitness = avaliar_solucao_trepa(&populacao[i].solucao, moedas, alvo);
     }
-    // Ajuste para garantir que a soma é próxima do alvo
-    for (int i = 0; i < ind->tamanho && soma < alvo; i++) {
-        while (soma + moedas[i] <= alvo) {
-            ind->solucao[i]++;
-            soma += moedas[i];
+}
+
+void avaliar_populacao(Individuo *populacao, int tamanho, double *moedas, double alvo) {
+    for (int i = 0; i < tamanho; i++) {
+        double soma = calcular_soma_trepa(&populacao[i].solucao, moedas);
+        int num_moedas = 0;
+        for (int j = 0; j < populacao[i].solucao.tamanho; j++) {
+            num_moedas += populacao[i].solucao.solucao[j];
+        }
+
+        // Penalizar soluções que excedem o valor-alvo e priorizar o menor número de moedas
+        if (soma > alvo) {
+            populacao[i].fitness = (int)((soma - alvo) * 100) + num_moedas * 10;
+        } else if (soma < alvo) {
+            populacao[i].fitness = (int)((alvo - soma) * 100) + num_moedas * 10;
+        } else {
+            populacao[i].fitness = num_moedas; // Solução válida com menor número de moedas
         }
     }
 }
 
-int avaliar_solucao_evolutivo(Individuo *ind, double *moedas, double alvo) {
-    reparar_solucao_evolutivo(ind, moedas, alvo);
-    int total_moedas = 0;
-    for (int i = 0; i < ind->tamanho; i++) {
-        total_moedas += ind->solucao[i];
-    }
-    return total_moedas;
+int comparar_individuos(const void *a, const void *b) {
+    return ((Individuo *)a)->fitness - ((Individuo *)b)->fitness;
 }
 
-void inicializar_populacao(Individuo *populacao, int tamanho_populacao, int n, double *moedas, double alvo) {
-    for (int i = 0; i < tamanho_populacao; i++) {
-        populacao[i].tamanho = n;
-        populacao[i].solucao = malloc(n * sizeof(int));
-        gerar_solucao_aleatoria_evolutivo(&populacao[i], moedas, alvo);
-        populacao[i].aptidao = avaliar_solucao_evolutivo(&populacao[i], moedas, alvo);
-    }
-}
-
-void cruzamento(Individuo *pai1, Individuo *pai2, Individuo *filho, int n) {
-    filho->tamanho = n;
-    filho->solucao = malloc(n * sizeof(int));
-    for (int i = 0; i < n; i++) {
-        filho->solucao[i] = (i < n / 2) ? pai1->solucao[i] : pai2->solucao[i];
-    }
-}
-
-void cruzamento_uniforme(Individuo *pai1, Individuo *pai2, Individuo *filho, int n) {
-    filho->tamanho = n;
-    filho->solucao = malloc(n * sizeof(int));
-    for (int i = 0; i < n; i++) {
-        filho->solucao[i] = (rand() % 2 == 0) ? pai1->solucao[i] : pai2->solucao[i];
-    }
-}
-
-void mutacao(Individuo *ind, double *moedas, double alvo) {
-    for (int i = 0; i < ind->tamanho; i++) {
-        if (((double)rand() / RAND_MAX) < TAXA_MUTACAO) {
-            int nova_quantidade = rand() % ((int)(alvo / moedas[i]) + 1);
-            ind->solucao[i] = (nova_quantidade > 0) ? nova_quantidade : 1; // Garante que não seja zero
+void selecao_torneio(Individuo *populacao, Individuo *pais, int tamanho) {
+    for (int i = 0; i < tamanho; i++) {
+        int indice1 = rand() % tamanho;
+        int indice2 = rand() % tamanho;
+        if (populacao[indice1].fitness < populacao[indice2].fitness) {
+            pais[i] = populacao[indice1];
+        } else {
+            pais[i] = populacao[indice2];
         }
     }
 }
 
-void mutacao_gaussiana(Individuo *ind, double *moedas, double alvo) {
-    for (int i = 0; i < ind->tamanho; i++) {
-        if (((double)rand() / RAND_MAX) < TAXA_MUTACAO) {
-            int variacao = (int)(rand() % 3 - 1); // Valor entre -1 e 1
-            if (ind->solucao[i] + variacao >= 0) {
-                ind->solucao[i] += variacao;
+void recombinacao_uniforme(Individuo *pais, Individuo *filhos, int tamanho) {
+    for (int i = 0; i < tamanho; i += 2) {
+        Individuo *filho1 = &filhos[i];
+        Individuo *filho2 = &filhos[i + 1];
+        filho1->solucao.tamanho = pais[i].solucao.tamanho;
+        filho2->solucao.tamanho = pais[i + 1].solucao.tamanho;
+        filho1->solucao.solucao = malloc(filho1->solucao.tamanho * sizeof(int));
+        filho2->solucao.solucao = malloc(filho2->solucao.tamanho * sizeof(int));
+        if (filho1->solucao.solucao == NULL || filho2->solucao.solucao == NULL) {
+            printf("Erro ao alocar memoria para a solucao dos filhos.\n");
+            exit(EXIT_FAILURE);
+        }
+        for (int j = 0; j < pais[i].solucao.tamanho; j++) {
+            if (rand() % 2 == 0) {
+                filho1->solucao.solucao[j] = pais[i].solucao.solucao[j];
+                filho2->solucao.solucao[j] = pais[i + 1].solucao.solucao[j];
+            } else {
+                filho1->solucao.solucao[j] = pais[i + 1].solucao.solucao[j];
+                filho2->solucao.solucao[j] = pais[i].solucao.solucao[j];
             }
         }
     }
 }
 
-Individuo* selecao_torneio(Individuo *populacao, int tamanho_populacao) {
-    int i1 = rand() % tamanho_populacao;
-    int i2 = rand() % tamanho_populacao;
-    return (populacao[i1].aptidao < populacao[i2].aptidao) ? &populacao[i1] : &populacao[i2];
+void mutacao(Individuo *populacao, int tamanho, double taxa_mutacao, double *moedas, double alvo) {
+    for (int i = 0; i < tamanho; i++) {
+        for (int j = 0; j < populacao[i].solucao.tamanho; j++) {
+            if (((double)rand() / RAND_MAX) < taxa_mutacao) {
+                // Aumentar ou diminuir a quantidade da moeda, respeitando os limites
+                int mudanca = gerar_aleatorio(-1, 1);
+                populacao[i].solucao.solucao[j] += mudanca;
+                if (populacao[i].solucao.solucao[j] < 0) {
+                    populacao[i].solucao.solucao[j] = 0;
+                }
+            }
+        }
+        reparar_solucao_trepa(&populacao[i].solucao, moedas, alvo);
+    }
 }
 
-Individuo* selecao_roleta(Individuo *populacao, int tamanho_populacao) {
-    int soma_aptidoes = 0;
-    for (int i = 0; i < tamanho_populacao; i++) {
-        soma_aptidoes += populacao[i].aptidao;
+void liberar_memoria_populacao(Individuo *populacao, int tamanho) {
+    for (int i = 0; i < tamanho; i++) {
+        free(populacao[i].solucao.solucao);
     }
-    int limite = rand() % soma_aptidoes;
-    int soma_parcial = 0;
-    for (int i = 0; i < tamanho_populacao; i++) {
-        soma_parcial += populacao[i].aptidao;
-        if (soma_parcial >= limite) {
-            return &populacao[i];
-        }
-    }
-    return &populacao[tamanho_populacao - 1];
 }
 
 void algoritmo_evolutivo(double *moedas, int n, double alvo) {
     Individuo populacao[TAMANHO_POPULACAO];
-    inicializar_populacao(populacao, TAMANHO_POPULACAO, n, moedas, alvo);
+    Individuo pais[TAMANHO_POPULACAO];
+    Individuo filhos[TAMANHO_POPULACAO];
 
-    for (int iter = 0; iter < MAX_ITERACOES; iter++) {
-        Individuo nova_populacao[TAMANHO_POPULACAO];
-        for (int i = 0; i < TAMANHO_POPULACAO; i++) {
-            Individuo *pai1 = selecao_torneio(populacao, TAMANHO_POPULACAO);
-            Individuo *pai2 = selecao_roleta(populacao, TAMANHO_POPULACAO);
-            cruzamento_uniforme(pai1, pai2, &nova_populacao[i], n);
-            mutacao_gaussiana(&nova_populacao[i], moedas, alvo);
-            nova_populacao[i].aptidao = avaliar_solucao_evolutivo(&nova_populacao[i], moedas, alvo);
-        }
-        for (int i = 0; i < TAMANHO_POPULACAO; i++) {
-            free(populacao[i].solucao);
-            populacao[i] = nova_populacao[i];
-        }
-    }
+    inicializar_populacao(populacao, TAMANHO_POPULACAO, moedas, n, alvo);
 
-    Individuo *melhor_solucao = &populacao[0];
-    for (int i = 1; i < TAMANHO_POPULACAO; i++) {
-        if (populacao[i].aptidao < melhor_solucao->aptidao) {
-            melhor_solucao = &populacao[i];
+    for (int geracao = 0; geracao < NUM_GERACOES; geracao++) {
+        selecao_torneio(populacao, pais, TAMANHO_POPULACAO);
+        recombinacao_uniforme(pais, filhos, TAMANHO_POPULACAO);
+        mutacao(filhos, TAMANHO_POPULACAO, TAXA_MUTACAO, moedas, alvo);
+        avaliar_populacao(filhos, TAMANHO_POPULACAO, moedas, alvo);
+
+        qsort(filhos, TAMANHO_POPULACAO, sizeof(Individuo), comparar_individuos);
+        qsort(populacao, TAMANHO_POPULACAO, sizeof(Individuo), comparar_individuos);
+
+        for (int i = 0; i < TAMANHO_POPULACAO / 2; i++) {
+            free(populacao[TAMANHO_POPULACAO - 1 - i].solucao.solucao);
+            populacao[TAMANHO_POPULACAO - 1 - i] = filhos[i];
         }
     }
 
+    Individuo melhor = populacao[0];
     printf("Melhor solucao encontrada:\n");
-    double soma = calcular_soma_evolutivo(melhor_solucao, moedas);
-    for (int i = 0; i < melhor_solucao->tamanho; i++) {
-        printf("Moeda %.2f: %d\n", moedas[i], melhor_solucao->solucao[i]);
+    double soma = calcular_soma_trepa(&melhor.solucao, moedas);
+    for (int i = 0; i < melhor.solucao.tamanho; i++) {
+        printf("Moeda %.2f: %d\n", moedas[i], melhor.solucao.solucao[i]);
     }
     printf("Valor total: %.2f\n", soma);
-    printf("Custo final: %d\n", melhor_solucao->aptidao);
+    printf("Custo final: %d\n", melhor.fitness);
 
-    for (int i = 0; i < TAMANHO_POPULACAO; i++) {
-        free(populacao[i].solucao);
-    }
+    liberar_memoria_populacao(populacao, TAMANHO_POPULACAO);
 }

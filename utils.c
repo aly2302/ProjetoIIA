@@ -1,7 +1,7 @@
 #include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <direct.h> // Para obter a diretoria atual no Windows
+#include <direct.h>
 
 int ler_ficheiro(const char *nome_ficheiro, double **moedas, double *alvo) {
     printf("A abrir o ficheiro: %s\n", nome_ficheiro);

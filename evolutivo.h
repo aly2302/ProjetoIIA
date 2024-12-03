@@ -1,30 +1,30 @@
 #ifndef PROJETOIIA_EVOLUTIVO_H
 #define PROJETOIIA_EVOLUTIVO_H
 
-#define MAX_ITERACOES 1000
-#define TAMANHO_POPULACAO 50
-#define TAXA_MUTACAO 0.1
+#include "trepaColinas.h"
+#include <stdlib.h>
 
+#define TAMANHO_POPULACAO 50
+#define TAXA_RECOMBINACAO 0.7
+#define TAXA_MUTACAO 0.1
+#define NUM_GERACOES 1000
+
+// Estrutura para representar uma solução
 typedef struct {
-    int *solucao;
-    int tamanho;
-    int aptidao;
+    Solucao solucao;
+    int fitness;
 } Individuo;
 
-int ler_ficheiro(const char *nome_ficheiro, double **moedas, double *alvo);
-void gerar_solucao_aleatoria_evolutivo(Individuo *ind, double *moedas, double alvo);
-double calcular_soma_evolutivo(Individuo *ind, double *moedas);
-void reparar_solucao_evolutivo(Individuo *ind, double *moedas, double alvo);
-int avaliar_solucao_evolutivo(Individuo *ind, double *moedas, double alvo);
-void inicializar_populacao(Individuo *populacao, int tamanho_populacao, int n, double *moedas, double alvo);
-void cruzamento(Individuo *pai1, Individuo *pai2, Individuo *filho, int n);
-void cruzamento_uniforme(Individuo *pai1, Individuo *pai2, Individuo *filho, int n);
-void mutacao(Individuo *ind, double *moedas, double alvo);
-void mutacao_gaussiana(Individuo *ind, double *moedas, double alvo);
-Individuo* selecao_torneio(Individuo *populacao, int tamanho_populacao);
-Individuo* selecao_roleta(Individuo *populacao, int tamanho_populacao);
+// Funções para inicializar, avaliar e gerenciar a população
+void inicializar_populacao(Individuo *populacao, int tamanho, double *moedas, int n, double alvo);
+void avaliar_populacao(Individuo *populacao, int tamanho, double *moedas, double alvo);
+int comparar_individuos(const void *a, const void *b);
+void selecao_torneio(Individuo *populacao, Individuo *pais, int tamanho);
+void recombinacao_uniforme(Individuo *pais, Individuo *filhos, int tamanho);
+void mutacao(Individuo *populacao, int tamanho, double taxa_mutacao, double *moedas, double alvo);
+void liberar_memoria_populacao(Individuo *populacao, int tamanho);
+
+// Função principal do algoritmo evolutivo
 void algoritmo_evolutivo(double *moedas, int n, double alvo);
 
-#endif //PROJETOIIA_EVOLUTIVO_H
-
-
+#endif // PROJETOIIA_EVOLUTIVO_H

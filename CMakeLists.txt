@@ -10,5 +10,6 @@ add_executable(ProjetoIIA main.c
         trepaColinas.h
         utils.c
         utils.h
+        hibrido.c
         hibrido.h
-        hibrido.c)
+)
