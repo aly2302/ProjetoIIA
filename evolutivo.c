@@ -54,6 +54,28 @@ void selecao_torneio(Individuo *populacao, Individuo *pais, int tamanho) {
     }
 }
 
+
+void selecao_roleta(Individuo *populacao, Individuo *pais, int tamanho) {
+    double soma_fitness = 0.0;
+    for (int i = 0; i < tamanho; i++) {
+        soma_fitness += 1.0 / (1.0 + populacao[i].fitness);
+    }
+
+    for (int i = 0; i < tamanho; i++) {
+        double valor_aleatorio = ((double)rand() / RAND_MAX) * soma_fitness;
+        double acumulado = 0.0;
+
+        for (int j = 0; j < tamanho; j++) {
+            acumulado += 1.0 / (1.0 + populacao[j].fitness);
+            if (acumulado >= valor_aleatorio) {
+                pais[i] = populacao[j];
+                break;
+            }
+        }
+    }
+}
+
+
 void recombinacao_uniforme(Individuo *pais, Individuo *filhos, int tamanho) {
     for (int i = 0; i < tamanho; i += 2) {
         Individuo *filho1 = &filhos[i];
@@ -78,6 +100,33 @@ void recombinacao_uniforme(Individuo *pais, Individuo *filhos, int tamanho) {
     }
 }
 
+
+void recombinacao_corte_meio(Individuo *pais, Individuo *filhos, int tamanho) {
+    for (int i = 0; i < tamanho; i += 2) {
+        Individuo *filho1 = &filhos[i];
+        Individuo *filho2 = &filhos[i + 1];
+        filho1->solucao.tamanho = pais[i].solucao.tamanho;
+        filho2->solucao.tamanho = pais[i + 1].solucao.tamanho;
+        filho1->solucao.solucao = malloc(filho1->solucao.tamanho * sizeof(int));
+        filho2->solucao.solucao = malloc(filho2->solucao.tamanho * sizeof(int));
+        if (filho1->solucao.solucao == NULL || filho2->solucao.solucao == NULL) {
+            printf("Erro ao alocar memoria para a solucao dos filhos.\n");
+            exit(EXIT_FAILURE);
+        }
+
+        int ponto_corte = pais[i].solucao.tamanho / 2;
+        for (int j = 0; j < ponto_corte; j++) {
+            filho1->solucao.solucao[j] = pais[i].solucao.solucao[j];
+            filho2->solucao.solucao[j] = pais[i + 1].solucao.solucao[j];
+        }
+        for (int j = ponto_corte; j < pais[i].solucao.tamanho; j++) {
+            filho1->solucao.solucao[j] = pais[i + 1].solucao.solucao[j];
+            filho2->solucao.solucao[j] = pais[i].solucao.solucao[j];
+        }
+    }
+}
+
+
 void mutacao(Individuo *populacao, int tamanho, double taxa_mutacao, double *moedas, double alvo) {
     for (int i = 0; i < tamanho; i++) {
         for (int j = 0; j < populacao[i].solucao.tamanho; j++) {
@@ -91,6 +140,19 @@ void mutacao(Individuo *populacao, int tamanho, double taxa_mutacao, double *moe
             }
         }
         reparar_solucao_trepa(&populacao[i].solucao, moedas, alvo);
+    }
+}
+
+
+void mutacao_trocar_elemento(Individuo *populacao, int tamanho, double taxa_mutacao, double *moedas) {
+    for (int i = 0; i < tamanho; i++) {
+        if (((double)rand() / RAND_MAX) < taxa_mutacao) {
+            int indice = rand() % populacao[i].solucao.tamanho;
+            int novo_valor = gerar_aleatorio(0, 10);  // Gerar novo valor aleatório (ajuste conforme as necessidades do problema)
+
+            // Trocar o valor do elemento selecionado pelo novo valor
+            populacao[i].solucao.solucao[indice] = novo_valor;
+        }
     }
 }
 
@@ -108,9 +170,15 @@ void algoritmo_evolutivo(double *moedas, int n, double alvo) {
     inicializar_populacao(populacao, TAMANHO_POPULACAO, moedas, n, alvo);
 
     for (int geracao = 0; geracao < NUM_GERACOES; geracao++) {
-        selecao_torneio(populacao, pais, TAMANHO_POPULACAO);
-        recombinacao_uniforme(pais, filhos, TAMANHO_POPULACAO);
+        //selecao_torneio(populacao, pais, TAMANHO_POPULACAO);
+        selecao_roleta(populacao,pais, TAMANHO_POPULACAO);
+
+        //recombinacao_uniforme(pais, filhos, TAMANHO_POPULACAO);
+        recombinacao_corte_meio(pais, filhos, TAMANHO_POPULACAO);
+
         mutacao(filhos, TAMANHO_POPULACAO, TAXA_MUTACAO, moedas, alvo);
+        mutacao_trocar_elemento(filhos, TAMANHO_POPULACAO, TAXA_MUTACAO,moedas);
+
         avaliar_populacao(filhos, TAMANHO_POPULACAO, moedas, alvo);
 
         qsort(filhos, TAMANHO_POPULACAO, sizeof(Individuo), comparar_individuos);

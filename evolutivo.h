@@ -20,8 +20,11 @@ void inicializar_populacao(Individuo *populacao, int tamanho, double *moedas, in
 void avaliar_populacao(Individuo *populacao, int tamanho, double *moedas, double alvo);
 int comparar_individuos(const void *a, const void *b);
 void selecao_torneio(Individuo *populacao, Individuo *pais, int tamanho);
+void selecao_roleta(Individuo *populacao, Individuo *pais, int tamanho);
 void recombinacao_uniforme(Individuo *pais, Individuo *filhos, int tamanho);
+void recombinacao_corte_meio(Individuo *pais, Individuo *filhos, int tamanho);
 void mutacao(Individuo *populacao, int tamanho, double taxa_mutacao, double *moedas, double alvo);
+void mutacao_trocar_elemento(Individuo *populacao, int tamanho, double taxa_mutacao, double *moedas);
 void liberar_memoria_populacao(Individuo *populacao, int tamanho);
 
 // Função principal do algoritmo evolutivo
