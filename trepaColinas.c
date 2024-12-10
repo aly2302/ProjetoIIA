@@ -1,7 +1,7 @@
 #include "trepaColinas.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <math.h>
 
 int gerar_aleatorio(int min, int max) {
     return min + rand() % (max - min + 1);
@@ -13,7 +13,6 @@ void gerar_solucao_aleatoria_trepa(Solucao *s, double *moedas, double alvo) {
         s->solucao[i] = gerar_aleatorio(0, (int)(alvo / moedas[i]));
         soma += s->solucao[i] * moedas[i];
     }
-    // Garantir que a soma não é zero
     if (soma == 0) {
         int indice = gerar_aleatorio(0, s->tamanho - 1);
         s->solucao[indice] = 1;
@@ -30,15 +29,14 @@ double calcular_soma_trepa(Solucao *s, double *moedas) {
 
 void reparar_solucao_trepa(Solucao *s, double *moedas, double alvo) {
     double soma = calcular_soma_trepa(s, moedas);
-    for (int i = s->tamanho - 1; i >= 0 && soma > alvo + TOLERANCIA; i--) {
-        while (s->solucao[i] > 0 && soma - moedas[i] >= alvo - TOLERANCIA) {
+    for (int i = s->tamanho - 1; i >= 0 && soma > alvo; i--) {
+        while (s->solucao[i] > 0 && soma - moedas[i] >= alvo) {
             s->solucao[i]--;
             soma -= moedas[i];
         }
     }
-    // Ajuste para garantir que a soma é próxima do alvo
-    for (int i = 0; i < s->tamanho && soma < alvo; i++) {
-        while (soma + moedas[i] <= alvo + TOLERANCIA) {
+    for (int i = s->tamanho - 1; i >= 0 && soma < alvo; i--) {
+        while (soma + moedas[i] <= alvo) {
             s->solucao[i]++;
             soma += moedas[i];
         }
@@ -54,41 +52,23 @@ int avaliar_solucao_trepa(Solucao *s, double *moedas, double alvo) {
     return total_moedas;
 }
 
-void gerar_vizinho(Solucao *atual, Solucao *vizinho, double *moedas, double alvo) {
-    for (int i = 0; i < atual->tamanho; i++) {
-        vizinho->solucao[i] = atual->solucao[i];
-    }
-
-    int indice = gerar_aleatorio(0, atual->tamanho - 1);
-    int mudanca = gerar_aleatorio(-1, 1);
-
-    if (vizinho->solucao[indice] + mudanca >= 0) {
-        vizinho->solucao[indice] += mudanca;
-    }
-    reparar_solucao_trepa(vizinho, moedas, alvo);
-}
-
 void gerar_vizinho2(Solucao *atual, Solucao *vizinho, double *moedas, double alvo) {
     for (int i = 0; i < atual->tamanho; i++) {
         vizinho->solucao[i] = atual->solucao[i];
     }
 
     int indice1 = gerar_aleatorio(0, atual->tamanho - 1);
-    int indice2;
-    do {
-        indice2 = gerar_aleatorio(0, atual->tamanho - 1);
-    } while (indice2 == indice1);
+    int indice2 = gerar_aleatorio(0, atual->tamanho - 1);
 
-    int mudanca1 = gerar_aleatorio(-1, 1);
-    int mudanca2 = gerar_aleatorio(-1, 1);
+    if (vizinho->solucao[indice1] > 0 && indice1 != indice2 && moedas[indice1] < moedas[indice2]) {
+        vizinho->solucao[indice1]--;
+        vizinho->solucao[indice2]++;
+    }
 
-    if (vizinho->solucao[indice1] + mudanca1 >= 0) {
-        vizinho->solucao[indice1] += mudanca1;
+    double soma = calcular_soma_trepa(vizinho, moedas);
+    if (soma > alvo) {
+        reparar_solucao_trepa(vizinho, moedas, alvo);
     }
-    if (vizinho->solucao[indice2] + mudanca2 >= 0) {
-        vizinho->solucao[indice2] += mudanca2;
-    }
-    reparar_solucao_trepa(vizinho, moedas, alvo);
 }
 
 void substituir_solucao(Solucao *destino, Solucao *origem) {
@@ -111,7 +91,11 @@ int trepa_colinas(double *moedas, int n, double alvo) {
         gerar_vizinho2(&atual, &vizinho, moedas, alvo);
         int custo_vizinho = avaliar_solucao_trepa(&vizinho, moedas, alvo);
 
-        if (custo_vizinho < custo_atual) {
+        double soma_atual = calcular_soma_trepa(&atual, moedas);
+        double soma_vizinho = calcular_soma_trepa(&vizinho, moedas);
+
+        if ((custo_vizinho < custo_atual && soma_vizinho <= alvo) ||
+            (soma_vizinho <= alvo && fabs(soma_vizinho - alvo) < fabs(soma_atual - alvo) && custo_vizinho <= custo_atual)) {
             substituir_solucao(&atual, &vizinho);
             custo_atual = custo_vizinho;
         }
