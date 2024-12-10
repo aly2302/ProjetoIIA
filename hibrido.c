@@ -56,7 +56,7 @@ void algoritmo_hibrido_1(double *moedas, int n, double alvo) {
     printf("Valor total: %.2f\n", soma);
     printf("Custo final: %d\n", melhor.fitness);
 
-    liberar_memoria_populacao(populacao, TAMANHO_POPULACAO);
+    libertar_memoria_populacao(populacao, TAMANHO_POPULACAO);
 }
 
 void algoritmo_hibrido_2(double *moedas, int n, double alvo) {
@@ -94,5 +94,5 @@ void algoritmo_hibrido_2(double *moedas, int n, double alvo) {
     printf("Valor total: %.2f\n", soma);
     printf("Custo final: %d\n", melhor.fitness);
 
-    liberar_memoria_populacao(populacao, TAMANHO_POPULACAO);
+    libertar_memoria_populacao(populacao, TAMANHO_POPULACAO);
 }

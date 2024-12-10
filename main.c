@@ -16,7 +16,7 @@ int main() {
 
     do {
         // Solicitar o nome do ficheiro
-        printf("Insira o nome do ficheiro: ");
+        printf("Nome do ficheiro: ");
         fgets(nome_ficheiro, sizeof(nome_ficheiro), stdin);
         nome_ficheiro[strcspn(nome_ficheiro, "\n")] = '\0';
 
@@ -31,7 +31,7 @@ int main() {
         srand((unsigned)time(NULL));
 
         // Menu de seleção de algoritmos
-        printf("Escolha o algoritmo a executar:\n");
+        printf("Escolhe o algoritmo a executar:\n");
         printf("1 - Trepa Colinas\n");
         printf("2 - Algoritmo Evolutivo\n");
         printf("3 - Algoritmo Hibrido 1\n");
@@ -43,23 +43,23 @@ int main() {
         // Executar o algoritmo selecionado
         switch (escolha) {
             case 1:
-                printf("\nExecutando Trepa Colinas...\n");
+                printf("\nA executar o Trepa Colinas...\n");
                 trepa_colinas(moedas, n, alvo);
                 break;
             case 2:
-                printf("\nExecutando Algoritmo Evolutivo...\n");
+                printf("\nA executar o Algoritmo Evolutivo...\n");
                 algoritmo_evolutivo(moedas, n, alvo);
                 break;
             case 3:
-                printf("\nExecutando Algoritmo Hibrido 1...\n");
+                printf("\nA executar o Algoritmo Hibrido 1...\n");
                 algoritmo_hibrido_1(moedas, n, alvo);
                 break;
             case 4:
-                printf("\nExecutando Algoritmo Hibrido 2...\n");
+                printf("\nA executar o Algoritmo Hibrido 2...\n");
                 algoritmo_hibrido_2(moedas, n, alvo);
                 break;
             default:
-                printf("Opção inválida. Por favor, escolha uma opção de 1 a 4.\n");
+                printf("Opção inválida. Escolhe uma opção de 1 a 4.\n");
                 break;
         }
 
@@ -67,12 +67,12 @@ int main() {
         free(moedas);
 
         // Perguntar ao usuário se deseja repetir
-        printf("\nDeseja executar novamente? (s/n): ");
+        printf("\nVoltar a correr o programa? (s/n): ");
         scanf(" %c", &continuar);
         getchar(); // Limpar o buffer do teclado
 
     } while (continuar == 's' || continuar == 'S');
 
-    printf("Programa encerrado.\n");
+    printf("Programa terminado.\n");
     return 0;
 }

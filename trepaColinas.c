@@ -1,12 +1,7 @@
 #include "trepaColinas.h"
 #include <stdio.h>
 #include <stdlib.h>
-/*
-#include <time.h>
-#include <math.h>
-#include <direct.h> // Para obter a diretoria atual no Windows
-#include <string.h>
-*/
+
 
 int gerar_aleatorio(int min, int max) {
     return min + rand() % (max - min + 1);

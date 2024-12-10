@@ -156,7 +156,7 @@ void mutacao_trocar_elemento(Individuo *populacao, int tamanho, double taxa_muta
     }
 }
 
-void liberar_memoria_populacao(Individuo *populacao, int tamanho) {
+void libertar_memoria_populacao(Individuo *populacao, int tamanho) {
     for (int i = 0; i < tamanho; i++) {
         free(populacao[i].solucao.solucao);
     }
@@ -199,5 +199,5 @@ void algoritmo_evolutivo(double *moedas, int n, double alvo) {
     printf("Valor total: %.2f\n", soma);
     printf("Custo final: %d\n", melhor.fitness);
 
-    liberar_memoria_populacao(populacao, TAMANHO_POPULACAO);
+    libertar_memoria_populacao(populacao, TAMANHO_POPULACAO);
 }

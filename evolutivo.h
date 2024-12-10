@@ -25,7 +25,7 @@ void recombinacao_uniforme(Individuo *pais, Individuo *filhos, int tamanho);
 void recombinacao_corte_meio(Individuo *pais, Individuo *filhos, int tamanho);
 void mutacao(Individuo *populacao, int tamanho, double taxa_mutacao, double *moedas, double alvo);
 void mutacao_trocar_elemento(Individuo *populacao, int tamanho, double taxa_mutacao, double *moedas);
-void liberar_memoria_populacao(Individuo *populacao, int tamanho);
+void libertar_memoria_populacao(Individuo *populacao, int tamanho);
 
 // Função principal do algoritmo evolutivo
 void algoritmo_evolutivo(double *moedas, int n, double alvo);

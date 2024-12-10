@@ -42,3 +42,11 @@
 14	172	7549589911296418	CMakeFiles/ProjetoIIA.dir/main.c.obj	39055f77f0bb7d03
 1	161	7549591113857990	CMakeFiles/ProjetoIIA.dir/evolutivo.c.obj	f7ae7d9d034fc6c
 161	285	7549591115021958	ProjetoIIA.exe	54b3ed71cfae98ef
+3	224	7555563760326296	CMakeFiles/ProjetoIIA.dir/trepaColinas.c.obj	e4ab7bbf56fd3da7
+224	505	7555563763113332	ProjetoIIA.exe	54b3ed71cfae98ef
+11	129	7555570280877379	CMakeFiles/ProjetoIIA.dir/main.c.obj	39055f77f0bb7d03
+15	129	7555570280886918	CMakeFiles/ProjetoIIA.dir/hibrido.c.obj	12fe2454959c30b4
+2	142	7555570281002037	CMakeFiles/ProjetoIIA.dir/evolutivo.c.obj	f7ae7d9d034fc6c
+2	128	7555570544066957	CMakeFiles/ProjetoIIA.dir/hibrido.c.obj	12fe2454959c30b4
+2	124	7555570688502447	CMakeFiles/ProjetoIIA.dir/hibrido.c.obj	12fe2454959c30b4
+124	214	7555570689380022	ProjetoIIA.exe	54b3ed71cfae98ef
